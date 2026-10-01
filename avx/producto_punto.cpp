@@ -28,7 +28,31 @@ float escalar(const float *a, const float *b, size_t n) {
 // acumulador (reducción horizontal) y agregar los elementos que sobran cuando
 // n no es múltiplo de ocho.
 float con_avx(const float *a, const float *b, size_t n) {
-  return 0.0f;
+  __m256 acumulador = _mm256_setzero_ps();  // [0, 0, 0, 0, 0, 0, 0, 0]
+  
+  size_t i = 0;
+  // Ciclo vectorial: de a 8 elementos por vuelta
+  for (; i + 8 <= n; i += 8) {
+    __m256 va = _mm256_loadu_ps(a + i);      // Cargar 8 floats de a
+    __m256 vb = _mm256_loadu_ps(b + i);      // Cargar 8 floats de b
+    __m256 prod = _mm256_mul_ps(va, vb);     // Multiplicar posición a posición
+    acumulador = _mm256_add_ps(acumulador, prod);  // Acumular
+  }
+  
+  // Reducción horizontal: sumar las 8 posiciones del acumulador
+  __m128 alto = _mm256_extractf128_ps(acumulador, 1);   // [4, 5, 6, 7]
+  __m128 bajo = _mm256_castps256_ps128(acumulador);     // [0, 1, 2, 3]
+  __m128 s = _mm_add_ps(alto, bajo);                     // Suma [0+4, 1+5, 2+6, 3+7]
+  s = _mm_hadd_ps(s, s);                                 // Suma parejas: [0+4+1+5, ...]
+  s = _mm_hadd_ps(s, s);                                 // Una más: [resultado, ...]
+  float suma = _mm_cvtss_f32(s);                         // Extrae el resultado
+  
+  // Cola: n % 8 elementos restantes
+  for (; i < n; i++) {
+    suma += a[i] * b[i];
+  }
+  
+  return suma;
 }
 
 int main() {

@@ -14,11 +14,13 @@ def producto_punto_indexado(a, b):
 
 
 def producto_punto_bucle(xs, ys):
-    """TODO: el producto punto de dos listas de Python, con un ciclo y zip."""
-    raise NotImplementedError
+    """Producto punto de dos listas de Python, con un ciclo y zip."""
+    total = 0
+    for x, y in zip(xs, ys):
+        total += x * y
+    return total
 
 
 def producto_punto_numpy(a, b):
-    """TODO: el producto punto de dos arreglos de NumPy, sin ciclos de Python.
-    Devolver un int de Python."""
-    raise NotImplementedError
+    """Producto punto de dos arreglos de NumPy, sin ciclos de Python."""
+    return int(np.dot(a, b))

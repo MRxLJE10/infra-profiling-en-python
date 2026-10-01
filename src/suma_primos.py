@@ -14,8 +14,19 @@ def suma_primos(n):
 
 
 def suma_primos_rapida(n):
-    """TODO: la misma suma, escrita a partir de lo que mostró el perfil.
+    """Usa la Criba de Eratóstenes: marca múltiplos en una sola pasada."""
+    if n <= 2:
+        return 0
 
-    Tiene que devolver exactamente lo mismo que suma_primos(n) para todo n.
-    """
-    raise NotImplementedError
+    # es primo[i] será True si i es primo, False si no lo es
+    es_primo = [True] * n
+    es_primo[0] = es_primo[1] = False  # 0 y 1 no son primos
+
+    # marcar múltiplos de cada primo encontrado
+    for i in range(2, int(n**0.5) + 1):
+        if es_primo[i]:
+            for multiplo in range(i * i, n, i):
+                es_primo[multiplo] = False
+
+    # sumar todos los primos encontrados
+    return sum(i for i in range(2,n) if es_primo[i])
